@@ -98,25 +98,93 @@ join categories c2
 -- Cột: membership, order_status, order_count
 -- Yêu cầu: nếu cặp nào = 0 order vẫn phải hiển thị (count = 0)
 -- Hint: CROSS JOIN membership values × status values, rồi LEFT JOIN orders
-SELECT 
+select 
     m.membership,
-    s.status AS order_status,
-    COUNT(o.id) AS order_count
-FROM 
-    (SELECT DISTINCT membership FROM customers) m
-CROSS JOIN 
-    (SELECT DISTINCT status FROM orders) s
-LEFT JOIN customers c
-    ON c.membership = m.membership
-LEFT JOIN orders o
-    ON o.customer_id = c.id
-    AND o.status = s.status
-GROUP BY 
-    m.membership,
-    s.status
-ORDER BY 
+    s.status as order_status,
+    count(o.id) as order_count
+from 
+    (select distinct membership from customers) m
+cross join 
+    (select distinct status from orders) s
+left join customers c
+    on c.membership = m.membership
+left join orders o
+    on o.customer_id = c.id
+    and o.status = s.status
+group by 
     m.membership,
     s.status
+order by 
+    m.membership,
+    s.status;
+
+-- ────────────────────────────
+-- 1.6: JOIN nhiều bảng (3-4 bảng)
+-- ────────────────────────────
+
+-- Bài 1.6a: Liệt kê top 10 sản phẩm bán chạy nhất (theo số lượng)
+-- JOIN: order_items → orders (filter delivered) → products → categories
+-- Cột: product_name, category_name, total_quantity_sold, total_revenue
+select 
+	p."name" as product_name,
+	c."name" as category_name,
+	sum(oi.quantity) as total_quantity_sold,
+	sum(oi.quantity * oi.unit_price) as total_revenue
+from order_items oi
+inner join orders o
+	on oi.order_id = o.id
+inner join products p
+	on oi.product_id = p.id
+inner join categories c
+	on p.category_id = c.id
+where o.status = 'delivered'
+group by p."name", c."name"
+order by total_quantity_sold desc
 limit 10
+
+-- Bài 1.6b: Doanh thu theo thành phố
+-- JOIN: orders → customers → cities
+-- Cột: city_name, region, total_orders, total_revenue
+-- Chỉ tính đơn delivered
+select 
+	ci."name" as city_name, 
+	ci.region, 
+	count(o.id) as total_orders,
+	sum(o.total_amount) as total_orders
+from orders o
+inner join customers c 
+	on o.customer_id = c.id
+inner join cities ci
+	on c.city_id = ci.id
+where o.status = 'delivered'
+group by ci."name", ci.region
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

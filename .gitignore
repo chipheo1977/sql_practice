@@ -1,0 +1,6 @@
+tmp/
+tmp/postgres_data/base/16384/pg_internal.init
+tmp/postgres_data/global/pg_control
+tmp/postgres_data/global/pg_internal.init
+tmp/postgres_data/pg_wal/000000010000000000000002
+tmp/postgres_data/postmaster.pid
